@@ -6,13 +6,13 @@ import (
 	"strconv"
 )
 
-type IUserService interface {
-	CreateOne(User) User
-	FindMany() []User
-	FindOne(id int) User
-	UpdateOne(id int, user User) User
-	DeleteOne(id int)
-}
+//type IUserService interface {
+//	CreateOne(User) User
+//	FindMany() []User
+//	FindOne(id int) User
+//	UpdateOne(id int, user User) User
+//	DeleteOne(id int)
+//}
 
 type UserService struct {
 	Repository IUserRepository
@@ -25,9 +25,12 @@ func (service *UserService) CreateOne(c *fiber.Ctx) error {
 		return c.Status(503).SendString(err.Error())
 	}
 
-	service.Repository.Create(*user)
+	result, err := service.Repository.Create(*user)
+	if err != nil {
+		return c.Status(503).SendString(err.Error())
+	}
 
-	return c.Status(201).JSON(user)
+	return c.Status(201).JSON(result)
 }
 
 func (service *UserService) FindMany(c *fiber.Ctx) error {
@@ -53,8 +56,12 @@ func (service *UserService) UpdateOne(c *fiber.Ctx) error {
 		return c.Status(503).SendString(err.Error())
 	}
 
-	service.Repository.UpdateOne(id, *user)
-	return c.Status(200).JSON(user)
+	result, err := service.Repository.UpdateOne(id, *user)
+	if err != nil {
+		return c.SendStatus(404)
+	}
+
+	return c.Status(200).JSON(result)
 }
 
 func (service *UserService) DeleteOne(c *fiber.Ctx) error {

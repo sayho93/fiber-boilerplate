@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewDB(config common.Config) *gorm.DB {
+func NewDB(config *common.Config) *gorm.DB {
 	var datetimePrecision = 2
 
 	dsn := fmt.Sprintf(

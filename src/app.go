@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/google/wire"
@@ -33,7 +32,7 @@ func NewApp(config *common.Config, service *users.UserService) *fiber.App {
 
 	app.Use(cors.New(cors.Config{AllowOrigins: "*"}))
 	app.Use(helmet.New())
-	app.Use(csrf.New(config.Csrf))
+	//app.Use(csrf.New(config.Csrf))
 	app.Use(logger.New())
 
 	app.Static("/static", "./public", fiber.Static{
@@ -47,10 +46,10 @@ func NewApp(config *common.Config, service *users.UserService) *fiber.App {
 
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
+	v1.Post("/users", service.CreateOne)
 	v1.Get("/users", service.FindMany)
 	v1.Get("/users/:id", service.FindOne)
-	v1.Post("users", service.CreateOne)
-	v1.Patch("/users", service.UpdateOne)
+	v1.Patch("/users/:id", service.UpdateOne)
 	v1.Delete("/users", service.DeleteOne)
 
 	return app

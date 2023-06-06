@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/google/wire"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"strconv"
@@ -73,11 +72,6 @@ func csrfConfig() csrf.Config {
 }
 
 func NewConfig() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading .env file")
-	}
-
 	port, parseErr := strconv.Atoi(os.Getenv("PORT"))
 	if parseErr != nil {
 		panic(parseErr)

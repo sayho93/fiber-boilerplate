@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fiber/src/common/database"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +11,7 @@ type User struct {
 	Name     string `json:"name"`
 }
 
-func init() {
-	database.Connection.AutoMigrate(User{})
-}
+//
+//func init() {
+//	database.Connection.AutoMigrate(User{})
+//}

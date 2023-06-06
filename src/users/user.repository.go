@@ -16,19 +16,23 @@ func (r *RepositoryError) Error() string {
 }
 
 type IUserRepository interface {
-	Create(user User)
+	Create(user User) (User, error)
 	Find() []User
 	FindOne(id int) (User, error)
-	UpdateOne(id int, user User) User
+	UpdateOne(id int, user User) (User, error)
 	DeleteOne(id int) (User, error)
 }
 
 type UserRepository struct {
-	DB gorm.DB
+	DB *gorm.DB
 }
 
-func (repository *UserRepository) Create(user User) error {
-	return repository.DB.Create(user)
+func (repository *UserRepository) Create(user User) (User, error) {
+	result := repository.DB.Create(&user)
+	if result.RowsAffected == 0 {
+		return user, &RepositoryError{503, "service unavailable"}
+	}
+	return user, nil
 }
 
 func (repository *UserRepository) Find() []User {
@@ -47,8 +51,12 @@ func (repository *UserRepository) FindOne(id int) (User, error) {
 	return user, nil
 }
 
-func (repository *UserRepository) UpdateOne(id int, user User) {
-	repository.DB.Where("id = ?", id).Updates(user)
+func (repository *UserRepository) UpdateOne(id int, user User) (User, error) {
+	result := repository.DB.Where("id = ?", id).Updates(&user)
+	if result.RowsAffected == 0 {
+		return user, &RepositoryError{404, "not found"}
+	}
+	return user, nil
 }
 
 func (repository *UserRepository) DeleteOne(id int) (User, error) {
@@ -60,10 +68,13 @@ func (repository *UserRepository) DeleteOne(id int) (User, error) {
 	return user, nil
 }
 
-func NewUserRepository(db gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{
 		DB: db,
 	}
 }
 
-var SetRepository = wire.NewSet(NewUserRepository)
+var SetRepository = wire.NewSet(
+	NewUserRepository,
+	wire.Bind(new(IUserRepository), new(*UserRepository)),
+)
