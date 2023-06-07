@@ -10,8 +10,3 @@ type User struct {
 	Password string `json:"password"`
 	Name     string `json:"name"`
 }
-
-//
-//func init() {
-//	database.Connection.AutoMigrate(User{})
-//}

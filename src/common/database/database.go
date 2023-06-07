@@ -2,6 +2,7 @@ package database
 
 import (
 	"fiber/src/common"
+	"fiber/src/users"
 	"fmt"
 	"github.com/google/wire"
 	"gorm.io/driver/mysql"
@@ -26,6 +27,11 @@ func NewDB(config *common.Config) *gorm.DB {
 		DefaultDatetimePrecision: &datetimePrecision,
 	}), &gorm.Config{})
 
+	if err != nil {
+		panic(err)
+	}
+
+	err = connection.AutoMigrate(users.User{})
 	if err != nil {
 		panic(err)
 	}
