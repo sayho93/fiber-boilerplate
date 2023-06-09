@@ -44,10 +44,16 @@ func NewApp(config *common.Config, service *users.UserService) *fiber.App {
 
 	app.Use(func(c *fiber.Ctx) error {
 		logrus.Info(c)
-		queryParams := c.Request().URI().QueryArgs()
+		queryParams := c.Request().URI().QueryArgs().String()
+		if queryParams == "" {
+			return c.Next()
+		}
 		logrus.Infof("Query: %s", queryParams)
 
 		var prettyBodyParams interface{}
+		if c.Body() == nil {
+			return c.Next()
+		}
 		err := json.Unmarshal(c.Body(), &prettyBodyParams)
 		if err != nil {
 			logrus.Errorf("Failed to unmarshal body parameters: %v", err)

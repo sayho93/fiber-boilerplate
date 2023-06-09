@@ -34,3 +34,9 @@ deps:
 
 vet:
 	go vet
+
+docker-build:
+	docker build -t ${BINARY_NAME} .
+
+docker-run:
+	docker run -it --name ${BINARY_NAME} -p 3000:3000 ${BINARY_NAME}

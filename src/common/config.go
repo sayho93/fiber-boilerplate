@@ -33,7 +33,7 @@ type Config struct {
 
 func fiberConfig() fiber.Config {
 	return fiber.Config{
-		Prefork:       true,
+		//Prefork:       true,
 		CaseSensitive: true,
 		StrictRouting: true,
 		ServerHeader:  "Fiber",

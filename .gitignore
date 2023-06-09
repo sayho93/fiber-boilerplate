@@ -45,6 +45,7 @@ go.work
 !README.md
 !LICENSE
 !Makefile
+!Dockerfile
 
 # ...even if they are in subdirectories
 !*/
