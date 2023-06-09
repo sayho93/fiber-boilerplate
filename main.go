@@ -18,5 +18,11 @@ func init() {
 func main() {
 	server, _ := src.New()
 	port := os.Getenv("PORT")
-	log.Fatal(server.Listen(fmt.Sprintf("localhost:%s", port)))
+	address := func(appEnv string) string {
+		if appEnv == "development" {
+			return "localhost"
+		}
+		return ""
+	}(os.Getenv("APP_ENV"))
+	log.Fatal(server.Listen(fmt.Sprintf("%s:%s", address, port)))
 }

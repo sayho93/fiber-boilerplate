@@ -7,7 +7,7 @@ env-down:
 	oci os object get -bn environments --file .env --name ${BINARY_NAME}/.env
 
 run:
-	go run main.go
+	APP_ENV=development go run main.go
 
 compile:
 	echo "Compiling for every OS and Platform"

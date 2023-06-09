@@ -3,7 +3,6 @@ package users
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
-	"github.com/sirupsen/logrus"
 	"strconv"
 )
 
@@ -52,8 +51,6 @@ func (service *UserService) FindOne(c *fiber.Ctx) error {
 func (service *UserService) UpdateOne(c *fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
 	user := new(User)
-
-	logrus.Info("Hello, World!")
 
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(503).SendString(err.Error())
