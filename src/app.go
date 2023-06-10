@@ -13,6 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/google/wire"
 	"github.com/sirupsen/logrus"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,7 @@ var AppSet = wire.NewSet(
 	users.SetService,
 )
 
-func NewApp(config *common.Config, service *users.UserService) *fiber.App {
+func NewApp(config *common.Config, userService *users.UserService) *fiber.App {
 	app := fiber.New(config.Fiber)
 
 	if !fiber.IsChild() {
@@ -45,7 +46,7 @@ func NewApp(config *common.Config, service *users.UserService) *fiber.App {
 	app.Use(func(c *fiber.Ctx) error {
 		logrus.Info(c)
 		queryParams := c.Request().URI().QueryArgs().String()
-		if queryParams == "" {
+		if strings.EqualFold(queryParams, "") {
 			return c.Next()
 		}
 		logrus.Infof("Query: %s", queryParams)
@@ -82,11 +83,11 @@ func NewApp(config *common.Config, service *users.UserService) *fiber.App {
 
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
-	v1.Post("/users", service.CreateOne)
-	v1.Get("/users", service.FindMany)
-	v1.Get("/users/:id", service.FindOne)
-	v1.Patch("/users/:id", service.UpdateOne)
-	v1.Delete("/users", service.DeleteOne)
+	v1.Post("/users", userService.CreateOne)
+	v1.Get("/users", userService.FindMany)
+	v1.Get("/users/:id", userService.FindOne)
+	v1.Patch("/users/:id", userService.UpdateOne)
+	v1.Delete("/users", userService.DeleteOne)
 
 	return app
 }

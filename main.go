@@ -24,5 +24,6 @@ func main() {
 		}
 		return ""
 	}(os.Getenv("APP_ENV"))
+
 	log.Fatal(server.Listen(fmt.Sprintf("%s:%s", address, port)))
 }

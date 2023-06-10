@@ -34,7 +34,11 @@ func (service *UserService) CreateOne(c *fiber.Ctx) error {
 }
 
 func (service *UserService) FindMany(c *fiber.Ctx) error {
-	return c.Status(200).JSON(service.Repository.Find())
+	users, err := service.Repository.Find()
+	if err != nil {
+		return err
+	}
+	return c.Status(200).JSON(users)
 }
 
 func (service *UserService) FindOne(c *fiber.Ctx) error {

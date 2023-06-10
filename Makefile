@@ -45,3 +45,9 @@ docker-run:
         fi; \
             docker run -it --name ${BINARY_NAME} -p 3000:3000  ${BINARY_NAME}; \
     fi
+
+analysis:
+	go build -gcflags '-m=2'
+
+run-air:
+	air -c .air.toml
