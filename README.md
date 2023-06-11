@@ -9,8 +9,8 @@
 ```
 ### Require [Google Wire](https://github.com/google/wire) for DI
 ```bash
-    cd src/
-    wire
+    # go install github.com/google/wire/cmd/wire@latest
+    cd src/ && wire
 ```
 ### Commands
 ```bash
