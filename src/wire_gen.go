@@ -21,7 +21,8 @@ func New() (*fiber.App, error) {
 	db := database.NewDB(config)
 	userRepository := users.NewUserRepository(db)
 	userService := users.NewUserService(userRepository)
-	app := NewApp(config, userService)
+	userHandler := users.NewUserHandler(userService)
+	app := NewApp(config, userHandler)
 	return app, nil
 }
 

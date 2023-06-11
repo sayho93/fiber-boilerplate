@@ -22,9 +22,10 @@ var AppSet = wire.NewSet(
 	database.DBSet,
 	users.SetRepository,
 	users.SetService,
+	users.SetHandler,
 )
 
-func NewApp(config *common.Config, userService *users.UserService) *fiber.App {
+func NewApp(config *common.Config, handler users.UserHandler) *fiber.App {
 	app := fiber.New(config.Fiber)
 
 	if !fiber.IsChild() {
@@ -82,11 +83,11 @@ func NewApp(config *common.Config, userService *users.UserService) *fiber.App {
 
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
-	v1.Post("/users", userService.CreateOne)
-	v1.Get("/users", userService.FindMany)
-	v1.Get("/users/:id", userService.FindOne)
-	v1.Patch("/users/:id", userService.UpdateOne)
-	v1.Delete("/users", userService.DeleteOne)
+	v1.Post("/users", handler.CreateOne)
+	v1.Get("/users", handler.FindMany)
+	v1.Get("/users/:id", handler.FindOne)
+	v1.Patch("/users/:id", handler.UpdateOne)
+	v1.Delete("/users", handler.DeleteOne)
 
 	return app
 }

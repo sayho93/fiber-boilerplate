@@ -1,90 +1,63 @@
 package users
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
-	"github.com/sirupsen/logrus"
-	"strconv"
 )
 
-//type IUserService interface {
-//	CreateOne(User) User
-//	FindMany() []User
-//	FindOne(id int) User
-//	UpdateOne(id int, user User) User
-//	DeleteOne(id int)
-//}
-
-type UserService struct {
-	Repository IUserRepository
+type UserService interface {
+	CreateOne(*User) (*User, error)
+	FindMany() ([]User, error)
+	FindOne(id int) (*User, error)
+	UpdateOne(id int, user *User) (*User, error)
+	DeleteOne(id int) (*User, error)
 }
 
-func (service *UserService) CreateOne(c *fiber.Ctx) error {
-	user := new(User)
-
-	if err := c.BodyParser(user); err != nil {
-		return c.Status(503).SendString(err.Error())
-	}
-
-	result, err := service.Repository.Create(*user)
-	if err != nil {
-		return c.Status(503).SendString(err.Error())
-	}
-
-	return c.Status(201).JSON(result)
+type userService struct {
+	repository UserRepository
 }
 
-func (service *UserService) FindMany(c *fiber.Ctx) error {
-	users, err := service.Repository.Find()
-	if err != nil {
-		return err
-	}
-	return c.Status(200).JSON(users)
-}
-
-func (service *UserService) FindOne(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
-	logrus.Info("test")
-
-	result, err := service.Repository.FindOne(id)
-	if err != nil {
-		return c.SendStatus(404)
-	}
-
-	return c.Status(200).JSON(result)
-}
-
-func (service *UserService) UpdateOne(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
-	user := new(User)
-
-	if err := c.BodyParser(user); err != nil {
-		return c.Status(503).SendString(err.Error())
-	}
-
-	result, err := service.Repository.UpdateOne(id, *user)
-	if err != nil {
-		return c.SendStatus(404)
-	}
-
-	return c.Status(200).JSON(result)
-}
-
-func (service *UserService) DeleteOne(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
-
-	user, err := service.Repository.DeleteOne(id)
-	if err != nil {
-		return c.SendStatus(404)
-	}
-
-	return c.Status(200).JSON(user)
-}
-
-func NewUserService(userRepository IUserRepository) *UserService {
-	return &UserService{
-		Repository: userRepository,
-	}
+func NewUserService(userRepository UserRepository) UserService {
+	return &userService{repository: userRepository}
 }
 
 var SetService = wire.NewSet(NewUserService)
+
+func (service *userService) CreateOne(user *User) (*User, error) {
+	result, err := service.repository.Create(*user)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (service *userService) FindMany() ([]User, error) {
+	users, err := service.repository.Find()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (service *userService) FindOne(id int) (*User, error) {
+	result, err := service.repository.FindOne(id)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (service *userService) UpdateOne(id int, user *User) (*User, error) {
+	result, err := service.repository.UpdateOne(id, *user)
+	if err != nil {
+		return nil, err
+	}
+	return result, err
+}
+
+func (service *userService) DeleteOne(id int) (*User, error) {
+	user, err := service.repository.DeleteOne(id)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
