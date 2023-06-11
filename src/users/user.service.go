@@ -3,6 +3,7 @@ package users
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
+	"github.com/sirupsen/logrus"
 	"strconv"
 )
 
@@ -43,6 +44,7 @@ func (service *UserService) FindMany(c *fiber.Ctx) error {
 
 func (service *UserService) FindOne(c *fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
+	logrus.Info("test")
 
 	result, err := service.Repository.FindOne(id)
 	if err != nil {

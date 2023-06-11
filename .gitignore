@@ -47,6 +47,7 @@ go.work
 !Makefile
 !Dockerfile
 !.air.toml
+!env.example
 
 # ...even if they are in subdirectories
 !*/

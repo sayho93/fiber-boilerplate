@@ -5,7 +5,6 @@ import (
 	"fiber/src/common"
 	"fiber/src/common/database"
 	"fiber/src/users"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -29,9 +28,9 @@ func NewApp(config *common.Config, userService *users.UserService) *fiber.App {
 	app := fiber.New(config.Fiber)
 
 	if !fiber.IsChild() {
-		fmt.Println("Master process init")
+		logrus.Debug("Master process init")
 	} else {
-		fmt.Println("Child process init")
+		logrus.Debug("Child process init")
 	}
 
 	app.Use(cors.New(cors.Config{AllowOrigins: "*"}))

@@ -1,20 +1,11 @@
 package users
 
 import (
-	"fmt"
+	"fiber/src/common/errors"
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
-	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
-
-type RepositoryError struct {
-	status  int
-	message string
-}
-
-func (e *RepositoryError) Error() string {
-	return fmt.Sprintf("Status: %d, Message: %s", e.status, e.message)
-}
 
 type IUserRepository interface {
 	Create(user User) (*User, error)
@@ -30,16 +21,20 @@ type UserRepository struct {
 
 func (repository *UserRepository) Create(user User) (*User, error) {
 	result := repository.DB.Create(&user)
-	if result.RowsAffected == 0 {
-		return nil, errors.Wrap(&RepositoryError{503, "db error"}, "not affected")
+	if result.Error != nil {
+		return nil, errors.New(fiber.StatusServiceUnavailable, result.Error.Error())
 	}
+	if result.RowsAffected == 0 {
+		return nil, errors.New(fiber.StatusNotFound, "not affected")
+	}
+
 	return &user, nil
 }
 
 func (repository *UserRepository) Find() ([]User, error) {
 	var users []User
-	if err := repository.DB.Where("deleted_at != ?", "null").Find(&users).Error; err != nil {
-		return nil, errors.Wrap(&RepositoryError{503, "aa"}, "getUsers failure")
+	if err := repository.DB.Where("deletedAt != ?", "null").Find(&users).Error; err != nil {
+		return nil, errors.New(fiber.StatusServiceUnavailable, err.Error())
 	}
 
 	return users, nil
@@ -48,8 +43,11 @@ func (repository *UserRepository) Find() ([]User, error) {
 func (repository *UserRepository) FindOne(id int) (*User, error) {
 	var user User
 	result := repository.DB.Find(&user, id)
+	if result.Error != nil {
+		return nil, errors.New(fiber.StatusServiceUnavailable, result.Error.Error())
+	}
 	if result.RowsAffected == 0 {
-		return nil, errors.Wrap(&RepositoryError{404, "not found"}, "not affected")
+		return nil, errors.New(fiber.StatusNotFound, "Not affected")
 	}
 
 	return &user, nil
@@ -57,8 +55,11 @@ func (repository *UserRepository) FindOne(id int) (*User, error) {
 
 func (repository *UserRepository) UpdateOne(id int, user User) (*User, error) {
 	result := repository.DB.Where("id = ?", id).Updates(&user)
+	if result.Error != nil {
+		return nil, errors.New(fiber.StatusServiceUnavailable, result.Error.Error())
+	}
 	if result.RowsAffected == 0 {
-		return nil, errors.Wrap(&RepositoryError{404, "not found"}, "not affected")
+		return nil, errors.New(fiber.StatusNotFound, "not affected")
 	}
 	return &user, nil
 }
@@ -66,8 +67,11 @@ func (repository *UserRepository) UpdateOne(id int, user User) (*User, error) {
 func (repository *UserRepository) DeleteOne(id int) (*User, error) {
 	var user User
 	result := repository.DB.Delete(&user, id)
+	if result.Error != nil {
+		return nil, errors.New(fiber.StatusServiceUnavailable, result.Error.Error())
+	}
 	if result.RowsAffected == 0 {
-		return nil, errors.Wrap(&RepositoryError{404, "not found"}, "not affected")
+		return nil, errors.New(fiber.StatusNotFound, "not affected")
 	}
 	return &user, nil
 }

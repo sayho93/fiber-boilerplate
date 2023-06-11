@@ -1,15 +1,14 @@
 package common
 
 import (
+	"fiber/src/common/middlewares"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/google/wire"
 	"github.com/mattn/go-colorable"
 	"github.com/natefinch/lumberjack"
-	"github.com/sirupsen/logrus"
-	"io"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 	"time"
@@ -24,11 +23,10 @@ type DB struct {
 }
 
 type Config struct {
-	Port   int
-	Fiber  fiber.Config
-	DB     DB
-	Csrf   csrf.Config
-	Logger logger.Config
+	Port  int
+	Fiber fiber.Config
+	DB    DB
+	Csrf  csrf.Config
 }
 
 func fiberConfig() fiber.Config {
@@ -38,6 +36,7 @@ func fiberConfig() fiber.Config {
 		StrictRouting: true,
 		ServerHeader:  "Fiber",
 		AppName:       "Fiber v1",
+		ErrorHandler:  middlewares.GeneralErrorHandler,
 	}
 }
 
@@ -55,7 +54,7 @@ type LumberjackHook struct {
 	Writer *lumberjack.Logger
 }
 
-func (hook *LumberjackHook) Fire(entry *logrus.Entry) error {
+func (hook *LumberjackHook) Fire(entry *log.Entry) error {
 	msg, err := entry.String()
 	if err != nil {
 		return err
@@ -64,8 +63,8 @@ func (hook *LumberjackHook) Fire(entry *logrus.Entry) error {
 	return err
 }
 
-func (hook *LumberjackHook) Levels() []logrus.Level {
-	return logrus.AllLevels
+func (hook *LumberjackHook) Levels() []log.Level {
+	return log.AllLevels
 }
 
 func NewLumberjackHook(writer *lumberjack.Logger) *LumberjackHook {
@@ -74,11 +73,11 @@ func NewLumberjackHook(writer *lumberjack.Logger) *LumberjackHook {
 	}
 }
 
-func loggerConfig() logger.Config {
-	logPath := "./logs/my_logs.log"
+func loggerConfig() {
+	logPath := "./logs/logs.log"
 	maxSize := 100
-	maxBackups := 3
-	maxAge := 28
+	maxBackups := 90
+	maxAge := 1
 
 	logRotation := &lumberjack.Logger{
 		Filename:   logPath,
@@ -88,23 +87,17 @@ func loggerConfig() logger.Config {
 		Compress:   true,       // 압축 여부
 	}
 
-	logrus.SetFormatter(&logrus.TextFormatter{
+	log.SetFormatter(&log.TextFormatter{
 		ForceColors:     true,
 		FullTimestamp:   true,
 		TimestampFormat: time.RFC822,
 	})
-	//logrus.SetReportCaller(true)
-	logrus.SetOutput(colorable.NewColorableStdout())
+	log.SetLevel(log.DebugLevel)
+	//log.SetReportCaller(true)
+	log.SetOutput(colorable.NewColorableStdout())
 
 	logHook := NewLumberjackHook(logRotation)
-	logrus.AddHook(logHook)
-
-	return logger.Config{
-		Format:     "[${time}] ${pid} ${locals:requestid} ${protocol} ${status} - ${method} ${path}\nheader: ${reqHeader:}\nquery: ${queryParams}\nbody: ${body}\n",
-		TimeFormat: "2006-01-02 15:04:05",
-		TimeZone:   "Asia/Seoul",
-		Output:     io.MultiWriter(os.Stdout, logRotation),
-	}
+	log.AddHook(logHook)
 }
 
 func csrfConfig() csrf.Config {
@@ -123,12 +116,13 @@ func NewConfig() *Config {
 		panic(parseErr)
 	}
 
+	loggerConfig()
+
 	var config = Config{
-		Port:   port,
-		Fiber:  fiberConfig(),
-		DB:     dbConfig(),
-		Csrf:   csrfConfig(),
-		Logger: loggerConfig(),
+		Port:  port,
+		Fiber: fiberConfig(),
+		DB:    dbConfig(),
+		Csrf:  csrfConfig(),
 	}
 
 	return &config

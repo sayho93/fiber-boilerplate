@@ -30,7 +30,7 @@ run-prod:
 	./out/${BINARY_NAME}
 
 deps:
-	go mod download
+	go mod download && go mod tidy
 
 vet:
 	go vet
@@ -50,4 +50,4 @@ analysis:
 	go build -gcflags '-m=2'
 
 run-air:
-	air -c .air.toml
+	~/golang/bin/air -c .air.toml
