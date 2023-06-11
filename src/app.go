@@ -1,9 +1,9 @@
 package src
 
 import (
-	"encoding/json"
 	"fiber/src/common"
 	"fiber/src/common/database"
+	"fiber/src/common/middlewares"
 	"fiber/src/users"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -12,7 +12,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/google/wire"
 	"github.com/sirupsen/logrus"
-	"strings"
 	"time"
 )
 
@@ -38,39 +37,10 @@ func NewApp(config *common.Config, handler users.UserHandler) *fiber.App {
 	app.Use(helmet.New())
 	//app.Use(csrf.New(config.Csrf))
 	app.Use(requestid.New())
-
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed, // 1
 	}))
-
-	app.Use(func(c *fiber.Ctx) error {
-		logrus.Info(c)
-		queryParams := c.Request().URI().QueryArgs().String()
-		if strings.EqualFold(queryParams, "") {
-			return c.Next()
-		}
-		logrus.Infof("Query: %s", queryParams)
-
-		var prettyBodyParams interface{}
-		if c.Body() == nil {
-			return c.Next()
-		}
-		err := json.Unmarshal(c.Body(), &prettyBodyParams)
-		if err != nil {
-			logrus.Errorf("Failed to unmarshal body parameters: %v", err)
-			return c.Next()
-		}
-
-		prettyBody, errIndent := json.MarshalIndent(prettyBodyParams, "", "  ")
-		if errIndent != nil {
-			logrus.Errorf("Failed to marshal body parameters: %v", err)
-			return c.Next()
-		}
-
-		logrus.Infof("Body: %s", string(prettyBody))
-		return c.Next()
-	})
-	//app.Use(logger.New(config.Logger))
+	app.Use(middlewares.LogMiddleware)
 
 	app.Static("/static", "./public", fiber.Static{
 		Compress:      true,
