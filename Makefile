@@ -23,7 +23,7 @@ build:
 	GOARCH=amd64 GOOS=linux go build -o out/${BINARY_NAME}-linux main.go
 
 clean:
-	go clean
+	go clean -modcache
 	rm -r out
 
 run-prod:
