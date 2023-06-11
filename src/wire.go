@@ -1,8 +1,8 @@
 package src
 
-//var ServerSet = wire.NewSet(AppSet)
+//var WireSet = wire.NewSet(AppSet)
 //
 //func New() (*fiber.App, error) {
-//	wire.Build(ServerSet)
+//	wire.Build(WireSet)
 //	return nil, nil
 //}

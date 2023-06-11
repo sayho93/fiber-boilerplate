@@ -14,7 +14,7 @@ import (
 	"github.com/google/wire"
 )
 
-// Injectors from server.go:
+// Injectors from wire.go:
 
 func New() (*fiber.App, error) {
 	config := common.NewConfig()
@@ -26,6 +26,6 @@ func New() (*fiber.App, error) {
 	return app, nil
 }
 
-// server.go:
+// wire.go:
 
-var ServerSet = wire.NewSet(AppSet)
+var WireSet = wire.NewSet(AppSet)
