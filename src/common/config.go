@@ -23,10 +23,11 @@ type DB struct {
 }
 
 type Config struct {
-	Port  int
-	Fiber fiber.Config
-	DB    DB
-	Csrf  csrf.Config
+	AppEnv string
+	Port   int
+	Fiber  fiber.Config
+	DB     DB
+	Csrf   csrf.Config
 }
 
 func fiberConfig() fiber.Config {
@@ -119,10 +120,11 @@ func NewConfig() *Config {
 	loggerConfig()
 
 	var config = Config{
-		Port:  port,
-		Fiber: fiberConfig(),
-		DB:    dbConfig(),
-		Csrf:  csrfConfig(),
+		AppEnv: os.Getenv("APP_ENV"),
+		Port:   port,
+		Fiber:  fiberConfig(),
+		DB:     dbConfig(),
+		Csrf:   csrfConfig(),
 	}
 
 	return &config

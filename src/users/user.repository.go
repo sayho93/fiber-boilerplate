@@ -39,7 +39,7 @@ func (repository *userRepository) Create(user User) (*User, error) {
 
 func (repository *userRepository) Find() ([]User, error) {
 	var users []User
-	if err := repository.DB.Where("deletedAt != ?", "null").Find(&users).Error; err != nil {
+	if err := repository.DB.Order("id desc").Find(&users).Error; err != nil {
 		return nil, errors.New(fiber.StatusServiceUnavailable, err.Error())
 	}
 

@@ -36,6 +36,10 @@ func NewDB(config *common.Config) *gorm.DB {
 		panic(err)
 	}
 
+	if config.AppEnv == "development" {
+		connection = connection.Debug()
+	}
+
 	return connection
 }
 
