@@ -53,11 +53,8 @@ func NewApp(config *common.Config, handler users.UserHandler) *fiber.App {
 
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
-	v1.Post("/users", handler.CreateOne)
-	v1.Get("/users", handler.FindMany)
-	v1.Get("/users/:id", handler.FindOne)
-	v1.Patch("/users/:id", handler.UpdateOne)
-	v1.Delete("/users", handler.DeleteOne)
+
+	users.NewRouter(v1, handler)
 
 	return app
 }
