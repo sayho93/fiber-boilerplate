@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/google/wire"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -24,7 +25,7 @@ var AppSet = wire.NewSet(
 	users.SetHandler,
 )
 
-func NewApp(config *common.Config, handler users.UserHandler) *fiber.App {
+func NewApp(config *common.Config, db *gorm.DB, handler users.UserHandler) *fiber.App {
 	app := fiber.New(config.Fiber)
 
 	if !fiber.IsChild() {
@@ -54,7 +55,7 @@ func NewApp(config *common.Config, handler users.UserHandler) *fiber.App {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
-	users.NewRouter(v1, handler)
+	users.NewRouter(v1, db, handler)
 
 	return app
 }

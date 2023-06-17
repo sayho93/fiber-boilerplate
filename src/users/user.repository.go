@@ -13,6 +13,7 @@ type UserRepository interface {
 	FindOne(id int) (*User, error)
 	UpdateOne(id int, user User) (*User, error)
 	DeleteOne(id int) (*User, error)
+	WithTx(tx *gorm.DB) UserRepository
 }
 
 type userRepository struct {
@@ -32,6 +33,10 @@ func (repository *userRepository) Create(user User) (*User, error) {
 	}
 	if result.RowsAffected == 0 {
 		return nil, errors.New(fiber.StatusNotFound, "not affected")
+	}
+	if true {
+		return nil, errors.New(fiber.StatusConflict, "transaction error test")
+		//panic("transaction error test")
 	}
 
 	return &user, nil
@@ -80,4 +85,9 @@ func (repository *userRepository) DeleteOne(id int) (*User, error) {
 		return nil, errors.New(fiber.StatusNotFound, "not affected")
 	}
 	return &user, nil
+}
+
+func (repository *userRepository) WithTx(tx *gorm.DB) UserRepository {
+	repository.DB = tx
+	return repository
 }

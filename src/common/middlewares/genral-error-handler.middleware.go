@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mattn/go-colorable"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"os"
 )
 
@@ -16,6 +17,12 @@ var GeneralErrorHandler = func(ctx *fiber.Ctx, err error) error {
 	var exception *Errors.Error
 	if errors.As(err, &exception) {
 		code = exception.Code
+	}
+
+	tx := ctx.Locals("TX").(*gorm.DB)
+	if tx != nil {
+		tx.Rollback()
+		logrus.Error("Transaction rollback - GeneralErrorHandler")
 	}
 
 	logrus.Errorf("%+v", exception)

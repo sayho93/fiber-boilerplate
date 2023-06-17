@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/google/wire"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -10,6 +11,7 @@ type UserService interface {
 	FindOne(id int) (*User, error)
 	UpdateOne(id int, user *User) (*User, error)
 	DeleteOne(id int) (*User, error)
+	WithTx(tx *gorm.DB) UserService
 }
 
 type userService struct {
@@ -60,4 +62,9 @@ func (service *userService) DeleteOne(id int) (*User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (service *userService) WithTx(tx *gorm.DB) UserService {
+	service.repository = service.repository.WithTx(tx)
+	return service
 }
