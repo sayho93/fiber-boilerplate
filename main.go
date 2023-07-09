@@ -47,8 +47,6 @@ func runGRPCServ(address string, port string) {
 	if e := srv.Serve(lis); e != nil {
 		panic(err)
 	}
-
-	log.Info("test222")
 }
 
 func main() {
