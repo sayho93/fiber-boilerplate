@@ -13,3 +13,7 @@ func NewRouter(router fiber.Router, db *gorm.DB, handler UserHandler) {
 	router.Patch("/users/:id", middlewares.TxMiddleware(db), handler.UpdateOne)
 	router.Delete("/users", middlewares.TxMiddleware(db), handler.DeleteOne)
 }
+
+func NewGrpcRouter(db *gorm.DB, handler UserHandler) {
+
+}

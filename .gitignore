@@ -48,7 +48,7 @@ go.work
 !Dockerfile
 !.air.toml
 !env.example
-
+!*.proto
 # ...even if they are in subdirectories
 !*/
 
